@@ -3,13 +3,15 @@ const WebpackUserscript = require('webpack-userscript').default;
 const TerserPlugin = require('terser-webpack-plugin');
 
 const isProduction = process.env.NODE_ENV === 'production';
+const isReadable = process.env.NODE_ENV === 'readable';
 
 module.exports = {
-  mode: isProduction ? 'production' : 'development',
+  mode: isReadable ? 'development' : (isProduction ? 'production' : 'development'),
+  devtool: isProduction ? 'source-map' : false, // 生产环境使用source-map，开发环境禁用以获得真正可读的代码
   entry: './src/index.ts',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'free-vip-video.user.js',
+    filename: 'main.js',
   },
   module: {
     rules: [
@@ -24,13 +26,17 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   optimization: {
-    minimize: isProduction,
+    minimize: true,
     minimizer: [
       new TerserPlugin({
         terserOptions: {
           output: {
             comments: /==\/?UserScript==|@/i,
+            beautify: !isProduction,
+            indent_level: 2,
           },
+          mangle: isProduction,
+          compress: isProduction,
         },
         extractComments: false,
       }),
@@ -41,9 +47,9 @@ module.exports = {
       headers: {
         name: 'free-vip-vedeo',
         namespace: 'http://tampermonkey.net/',
-        version: '1.7.0',
-        description: '全网VIP视频免费破解，支持：腾讯、爱奇艺、优酷、芒果、pptv、乐视等其它网站；',
-        author: 'w__yi',
+        version: '0.2.1',
+        description: 'VIP视频源替换播放，支持：腾讯、爱奇艺、优酷、芒果、pptv、乐视等',
+        author: 'deadalux',
         match: [
           '*://*.youku.com/*',
           '*://*.iqiyi.com/*',
@@ -73,11 +79,7 @@ module.exports = {
         downloadURL: 'https://update.greasyfork.org/scripts/438657/%E5%85%A8%E7%BD%91VIP%E8%A7%86%E9%A2%91%E5%85%8D%E8%B4%B9%E7%A0%B4%E8%A7%A3%E3%80%90%E4%B8%93%E6%B3%A8%E4%B8%80%E4%B8%AA%E8%84%9A%E6%9C%AC%E5%8F%AA%E5%81%9A%E4%B8%80%E4%BB%B6%E4%BA%8B%E4%BB%B6%E3%80%91.user.js',
         updateURL: 'https://update.greasyfork.org/scripts/438657/%E5%85%A8%E7%BD%91VIP%E8%A7%86%E9%A2%91%E5%85%8D%E8%B4%B9%E7%A0%B4%E8%A7%A3%E3%80%90%E4%B8%93%E6%B3%A8%E4%B8%80%E4%B8%AA%E8%84%9A%E6%9C%AC%E5%8F%AA%E5%81%9A%E4%B8%80%E4%BB%B6%E4%BA%8B%E4%BB%B6%E3%80%91.meta.js',
       },
-      proxyScript: {
-        baseUrl: 'http://127.0.0.1:8080',
-        filename: '[basename].proxy.user.js',
-        enable: !isProduction,
-      },
+      metajs: false,
     }),
   ],
   externals: {

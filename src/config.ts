@@ -1,34 +1,45 @@
+// 定义视频解析服务的接口
 export interface VideoParseItem {
-    name: string;
-    type: string;
-    url: string;
+    name: string; // 解析服务名称
+    type: string; // 类型，用于区分内嵌播放、弹窗播放等
+    url: string;  // 解析服务地址
 }
 
+// 定义播放器容器的接口
 export interface PlayerContainer {
-    host: string;
-    container: string;
-    name: string;
-    displayNodes: string[];
+    host: string; // 目标视频网站的 host
+    container: string; // 播放器在页面中的 CSS 选择器
+    name: string; // 自定义名称，当前未使用
+    displayNodes: string[]; // 需要隐藏的页面元素的选择器列表
 }
 
+// 定义主配置对象的接口
 export interface Config {
-    isMobile: boolean;
-    currentPlayerNode: PlayerContainer | null;
-    vipBoxId: string;
-    flag: string;
-    autoPlayerKey: string;
-    autoPlayerVal: string;
-    videoParseList: VideoParseItem[];
-    playerContainers: PlayerContainer[];
+    isMobile: boolean; // 是否为移动端
+    currentPlayerNode: PlayerContainer | null; // 当前匹配到的播放器容器配置
+    vipBoxId: string; // 注入页面的 VIP 解析悬浮按钮的 ID
+    flag: string; // 用于判断是否进行了VIP操作的标志
+    autoPlayerKey: string; // 存储是否开启自动播放的键名
+    autoPlayerVal: string; // 存储自动播放使用的解析源索引的键名
+    videoParseList: VideoParseItem[]; // 视频解析服务列表
+    playerContainers: PlayerContainer[]; // 支持的视频网站播放器列表
 }
 
+// 全局配置对象
 export const _CONFIG_: Config = {
+    // 通过 UserAgent 判断是否为移动端
     isMobile: !!navigator.userAgent.match(/(Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini)/i),
+    // 当前网站匹配的播放器配置，默认为 null
     currentPlayerNode: null,
+    // 随机生成一个唯一的悬浮按钮ID，避免冲突
     vipBoxId: 'vip_jx_box' + Math.ceil(Math.random() * 100000000),
+    // 用于页面跳转后判断是否需要重新加载脚本逻辑的标志
     flag: "flag_vip",
+    // 本地存储中用于记录“是否开启自动解析”的键名，与域名挂钩
     autoPlayerKey: "auto_player_key" + window.location.host,
+    // 本地存储中用于记录“自动解析线路”的键名，与域名挂钩
     autoPlayerVal: "auto_player_value_" + window.location.host,
+    // VIP 视频解析接口列表
     videoParseList: [
         {"name": "综合", "type": "1,3", "url": "https://jx.jsonplayer.com/player/?url="},
         {"name": "CK", "type": "1,3", "url": "https://www.ckplayer.vip/jiexi/?url="},
@@ -48,6 +59,7 @@ export const _CONFIG_: Config = {
         {"name": "冰豆", "type": "1,3", "url": "https://bd.jx.cn/?url="},
         {"name": "playm3u8", "type": "1,3", "url": "https://www.playm3u8.cn/jiexi.php?url="},
     ],
+    // 支持的网站列表及其播放器容器配置
     playerContainers: [
         {
             host: "v.qq.com",
